@@ -4,8 +4,6 @@
 
 namespace RateLimit;
 
-use Assert\Assertion;
-
 class Rate
 {
     protected $operations;
@@ -13,9 +11,12 @@ class Rate
 
     final protected function __construct($operations, $interval)
     {
-        Assertion::greaterThan($operations, 0, 'Quota must be greater than zero');
-        Assertion::greaterThan($interval, 0, 'Seconds interval must be greater than zero');
-
+        if ($operations <= 0) {
+            throw new \InvalidArgumentException('Quota must be greater than zero');
+        }
+        if ($interval <= 0) {
+            throw new \InvalidArgumentException('Seconds interval must be greater than zero');
+        }
         $this->operations = $operations;
         $this->interval = $interval;
     }
