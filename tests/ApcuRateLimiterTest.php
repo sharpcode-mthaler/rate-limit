@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace RateLimit\Tests;
 
 use RateLimit\ApcuRateLimiter;
@@ -12,7 +10,7 @@ use function apcu_clear_cache;
 
 class ApcuRateLimiterTest extends RateLimiterTest
 {
-    protected function getRateLimiter(Rate $rate): RateLimiter
+    protected function getRateLimiter(Rate $rate)
     {
         try {
             $rateLimiter = new ApcuRateLimiter($rate);

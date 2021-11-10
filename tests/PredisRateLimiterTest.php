@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace RateLimit\Tests;
 
 use Predis\Client;
@@ -12,7 +10,7 @@ use function class_exists;
 
 class PredisRateLimiterTest extends RateLimiterTest
 {
-    protected function getRateLimiter(Rate $rate): RateLimiter
+    protected function getRateLimiter(Rate $rate)
     {
         if (!class_exists('Predis\Client')) {
             $this->markTestSkipped('Predis library is not available');

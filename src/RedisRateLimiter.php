@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace RateLimit;
 
@@ -12,30 +12,30 @@ use function time;
 
 final class RedisRateLimiter extends ConfigurableRateLimiter implements RateLimiter, SilentRateLimiter
 {
-    private Redis $redis;
-    private string $keyPrefix;
+    private $redis;
+    private $keyPrefix;
 
-    public function __construct(Rate $rate, Redis $redis, string $keyPrefix = '')
+    public function __construct(Rate $rate, Redis $redis, $keyPrefix = '')
     {
         parent::__construct($rate);
         $this->redis = $redis;
         $this->keyPrefix = $keyPrefix;
     }
 
-    public function limit(string $identifier): void
+    public function limit($identifier)
     {
         $key = $this->key($identifier);
 
         $current = $this->getCurrent($key);
 
         if ($current >= $this->rate->getOperations()) {
-            throw LimitExceeded::for($identifier, $this->rate);
+            throw LimitExceeded::forIdentifier($identifier, $this->rate);
         }
 
         $this->updateCounter($key);
     }
 
-    public function limitSilently(string $identifier): Status
+    public function limitSilently( $identifier)
     {
         $key = $this->key($identifier);
 
@@ -53,17 +53,17 @@ final class RedisRateLimiter extends ConfigurableRateLimiter implements RateLimi
         );
     }
 
-    private function key(string $identifier): string
+    private function key($identifier)
     {
         return "{$this->keyPrefix}{$identifier}:{$this->rate->getInterval()}";
     }
 
-    private function getCurrent(string $key): int
+    private function getCurrent($key)
     {
         return (int) $this->redis->get($key);
     }
 
-    private function updateCounter(string $key): int
+    private function updateCounter($key)
     {
         $current = $this->redis->incr($key);
 
@@ -74,7 +74,7 @@ final class RedisRateLimiter extends ConfigurableRateLimiter implements RateLimi
         return $current;
     }
 
-    private function ttl(string $key): int
+    private function ttl($key)
     {
         return max((int) ceil($this->redis->pttl($key) / 1000), 0);
     }

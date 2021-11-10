@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace RateLimit;
 
@@ -17,9 +17,9 @@ use function time;
 
 final class ApcuRateLimiter extends ConfigurableRateLimiter implements RateLimiter, SilentRateLimiter
 {
-    private string $keyPrefix;
+    private $keyPrefix;
 
-    public function __construct(Rate $rate, string $keyPrefix = '')
+    public function __construct(Rate $rate, $keyPrefix = '')
     {
         if (!extension_loaded('apcu') || ini_get('apc.enabled') === '0') {
             throw new CannotUseRateLimiter('APCu extension is not loaded or not enabled.');
@@ -33,19 +33,19 @@ final class ApcuRateLimiter extends ConfigurableRateLimiter implements RateLimit
         $this->keyPrefix = $keyPrefix;
     }
 
-    public function limit(string $identifier): void
+    public function limit($identifier)
     {
         $limitKey = $this->limitKey($identifier);
 
         $current = $this->getCurrent($limitKey);
         if ($current >= $this->rate->getOperations()) {
-            throw LimitExceeded::for($identifier, $this->rate);
+            throw LimitExceeded::forIdentifier($identifier, $this->rate);
         }
 
         $this->updateCounter($limitKey);
     }
 
-    public function limitSilently(string $identifier): Status
+    public function limitSilently($identifier)
     {
         $limitKey = $this->limitKey($identifier);
         $timeKey = $this->timeKey($identifier);
@@ -63,22 +63,22 @@ final class ApcuRateLimiter extends ConfigurableRateLimiter implements RateLimit
         );
     }
 
-    private function limitKey(string $identifier): string
+    private function limitKey($identifier)
     {
         return sprintf('%s%s:%d', $this->keyPrefix, $identifier, $this->rate->getInterval());
     }
 
-    private function timeKey(string $identifier): string
+    private function timeKey($identifier)
     {
         return sprintf('%s%s:%d:time', $this->keyPrefix, $identifier, $this->rate->getInterval());
     }
 
-    private function getCurrent(string $limitKey): int
+    private function getCurrent($limitKey)
     {
         return (int) apcu_fetch($limitKey);
     }
 
-    private function updateCounterAndTime(string $limitKey, string $timeKey): int
+    private function updateCounterAndTime($limitKey, $timeKey)
     {
         $current = $this->updateCounter($limitKey);
 
@@ -89,14 +89,14 @@ final class ApcuRateLimiter extends ConfigurableRateLimiter implements RateLimit
         return $current;
     }
 
-    private function updateCounter(string $limitKey): int
+    private function updateCounter($limitKey)
     {
         $current = apcu_inc($limitKey, 1, $success, $this->rate->getInterval());
 
         return $current === false ? 1 : $current;
     }
 
-    private function getElapsedTime(string $timeKey): int
+    private function getElapsedTime($timeKey)
     {
         return time() - (int) apcu_fetch($timeKey);
     }

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace RateLimit\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -13,12 +11,12 @@ use function sleep;
 
 abstract class RateLimiterTest extends TestCase
 {
-    abstract protected function getRateLimiter(Rate $rate): RateLimiter;
+    abstract protected function getRateLimiter(Rate $rate);
 
     /**
      * @test
      */
-    public function it_raises_exception_when_limit_is_exceeded(): void
+    public function it_raises_exception_when_limit_is_exceeded()
     {
         $rate = Rate::perHour(1);
         $rateLimiter = $this->getRateLimiter($rate);
@@ -39,7 +37,7 @@ abstract class RateLimiterTest extends TestCase
     /**
      * @test
      */
-    public function it_resets_limit_after_rate_interval(): void
+    public function it_resets_limit_after_rate_interval()
     {
         $rateLimiter = $this->getRateLimiter(Rate::perSecond(1));
         $identifier = 'test';
@@ -60,7 +58,7 @@ abstract class RateLimiterTest extends TestCase
     /**
      * @test
      */
-    public function it_silently_returns_correct_status_when_limit_is_exceeded(): void
+    public function it_silently_returns_correct_status_when_limit_is_exceeded()
     {
         $rateLimiter = $this->getRateLimiter(Rate::perHour(1));
 
@@ -81,7 +79,7 @@ abstract class RateLimiterTest extends TestCase
     /**
      * @test
      */
-    public function it_silently_tracks_rate_limit_status_information(): void
+    public function it_silently_tracks_rate_limit_status_information()
     {
         $rate = Rate::perMinute(10);
         $rateLimiter = $this->getRateLimiter($rate);
@@ -103,7 +101,7 @@ abstract class RateLimiterTest extends TestCase
     /**
      * @test
      */
-    public function it_silently_resets_limit_after_rate_interval(): void
+    public function it_silently_resets_limit_after_rate_interval()
     {
         $rate = Rate::perSecond(10);
         $rateLimiter = $this->getRateLimiter($rate);

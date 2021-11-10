@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace RateLimit;
 
@@ -10,20 +10,20 @@ use function time;
 
 final class InMemoryRateLimiter extends ConfigurableRateLimiter implements RateLimiter, SilentRateLimiter
 {
-    private array $store = [];
+    private $store = [];
 
-    public function limit(string $identifier): void
+    public function limit($identifier)
     {
         $key = $this->key($identifier);
 
         $current = $this->hit($key);
 
         if ($current > $this->rate->getOperations()) {
-            throw LimitExceeded::for($identifier, $this->rate);
+            throw LimitExceeded::forIdentifier($identifier, $this->rate);
         }
     }
 
-    public function limitSilently(string $identifier): Status
+    public function limitSilently($identifier)
     {
         $key = $this->key($identifier);
 
@@ -37,14 +37,14 @@ final class InMemoryRateLimiter extends ConfigurableRateLimiter implements RateL
         );
     }
 
-    private function key(string $identifier): string
+    private function key($identifier)
     {
         $interval = $this->rate->getInterval();
 
         return "$identifier:$interval:" . floor(time() / $interval);
     }
 
-    private function hit(string $key): int
+    private function hit($key)
     {
         if (!isset($this->store[$key])) {
             $this->store[$key] = [

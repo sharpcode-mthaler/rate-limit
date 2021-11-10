@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace RateLimit;
 
@@ -11,5 +11,5 @@ interface RateLimiter
     /**
      * @throws LimitExceeded
      */
-    public function limit(string $identifier): void;
+    public function limit($identifier);
 }

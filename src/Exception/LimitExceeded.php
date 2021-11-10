@@ -1,18 +1,17 @@
 <?php
 
-declare(strict_types=1);
+
 
 namespace RateLimit\Exception;
 
 use RateLimit\Rate;
-use RuntimeException;
 
-final class LimitExceeded extends RuntimeException implements RateLimitException
+final class LimitExceeded extends RateLimitException
 {
-    private string $identifier;
-    private Rate $rate;
+    private $identifier;
+    private $rate;
 
-    public static function for(string $identifier, Rate $rate): self
+    public static function forIdentifier($identifier, Rate $rate)
     {
         $exception = new self(sprintf(
             'Limit has been exceeded for identifier "%s".',
@@ -25,12 +24,12 @@ final class LimitExceeded extends RuntimeException implements RateLimitException
         return $exception;
     }
 
-    public function getIdentifier(): string
+    public function getIdentifier()
     {
         return $this->identifier;
     }
 
-    public function getRate(): Rate
+    public function getRate()
     {
         return $this->rate;
     }
