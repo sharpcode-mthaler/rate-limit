@@ -75,13 +75,17 @@ final class ApcuRateLimiter extends ConfigurableRateLimiter implements RateLimit
 
     private function getCurrent($limitKey)
     {
-        return (int) apcu_fetch($limitKey);
+        $current = apcu_fetch($limitKey, $success);
+        if ($success === false || empty($current)) {
+            $current = 0;
+            apcu_store($limitKey, $current, $this->rate->getInterval());
+        }
+        return $current;
     }
 
     private function updateCounterAndTime($limitKey, $timeKey)
     {
         $current = $this->updateCounter($limitKey);
-
         if ($current === 1) {
             apcu_store($timeKey, time(), $this->rate->getInterval());
         }
@@ -91,10 +95,9 @@ final class ApcuRateLimiter extends ConfigurableRateLimiter implements RateLimit
 
     private function updateCounter($limitKey)
     {
-        $current = apcu_inc($limitKey, 1, $success);
-        if ($success === false || empty($current)) {
+        $current = apcu_inc($limitKey, 1);
+        if (empty($current)) {
             $current = 1;
-            apcu_store($limitKey, $current, $this->rate->getInterval());
         }
         return $current;
     }
